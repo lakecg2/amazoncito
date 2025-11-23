@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Cuenta - Administrador</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        nav {
+            background: linear-gradient(135deg, #ff6b6b 0%, #d84242 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        nav h1 {
+            font-size: 24px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid white;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .account-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        
+        .account-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ff6b6b;
+            font-size: 22px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #f0f0f0;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #ff6b6b;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        }
+        
+        .read-only {
+            background: #f9f9f9;
+            color: #666;
+        }
+        
+        .read-only:focus {
+            background: #f9f9f9;
+            border-color: #f0f0f0;
+            box-shadow: none;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b6b 0%, #d84242 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+        }
+        
+        .btn-logout {
+            background: #ccc;
+            color: #333;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-logout:hover {
+            background: #bbb;
+        }
+        
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .success.show {
+            display: block;
+        }
+        
+        .info-card {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 3px solid #ff6b6b;
+        }
+        
+        .info-card h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .info-card p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 768px) {
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <h1>⚙️ Amazoncito - Cuenta Admin</h1>
+        <div class="nav-links">
+            <a href="{% url 'admin_dashboard' %}">📊 Dashboard</a>
+            <a href="{% url 'admin_services' %}">🚚 Servicios</a>
+            <a href="{% url 'admin_account' %}">👤 Mi Cuenta</a>
+            <a href="{% url 'logout' %}" class="logout-btn">🚪 Cerrar Sesión</a>
+        </div>
+    </nav>
+    
+    <div class="container">
+        {% if success %}
+            <div class="success show">✅ {{ success }}</div>
+        {% endif %}
+        
+        <!-- Información de Usuario -->
+        <div class="account-section">
+            <h2>👤 Información de Administrador</h2>
+            
+            <div class="info-card">
+                <h4>Detalles de Cuenta</h4>
+                <p><strong>Usuario:</strong> {{ user.username }}</p>
+                <p><strong>Correo:</strong> {{ user.email|default:"No especificado" }}</p>
+                <p><strong>Rol:</strong> Administrador</p>
+                <p><strong>Miembro desde:</strong> {{ profile.created_at|date:"d/m/Y" }}</p>
+            </div>
+        </div>
+        
+        <!-- Formulario de edición -->
+        <form method="POST">
+            {% csrf_token %}
+            
+            <!-- Información Personal -->
+            <div class="account-section">
+                <h2>📝 Información Personal</h2>
+                
+                <div class="form-group">
+                    <label for="address">Dirección de Oficina</label>
+                    <input type="text" id="address" name="address" value="{{ profile.address|default:'' }}" placeholder="Dirección de la oficina...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Teléfono de Contacto</label>
+                    <input type="text" id="phone" name="phone" value="{{ profile.phone|default:'' }}" placeholder="+57 300 000 0000">
+                </div>
+            </div>
+            
+            <!-- Descripción Personal -->
+            <div class="account-section">
+                <h2>📄 Notas de Administración</h2>
+                
+                <div class="form-group">
+                    <label for="description">Notas Personales</label>
+                    <textarea id="description" name="description" placeholder="Notas sobre la administración, políticas, etc...">{{ profile.description|default:'' }}</textarea>
+                </div>
+            </div>
+            
+            <!-- Acciones -->
+            <div class="account-section">
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">💾 Guardar Cambios</button>
+                    <a href="{% url 'logout' %}" class="btn-logout">🚪 Cerrar Sesión</a>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        // Mostrar mensaje de éxito
+        let successDiv = document.querySelector('.success.show');
+        if (successDiv) {
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

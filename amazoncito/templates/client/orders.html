@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Pedidos - Cliente</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        nav {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        nav h1 {
+            font-size: 24px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid white;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .header h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+        }
+        
+        .orders-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .order-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .order-card:hover {
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .order-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        
+        .order-header-item {
+            text-align: center;
+        }
+        
+        .order-header-label {
+            font-size: 12px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        
+        .order-header-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .order-body {
+            padding: 20px;
+        }
+        
+        .order-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .info-item {
+            border-left: 3px solid #667eea;
+            padding-left: 15px;
+        }
+        
+        .info-label {
+            color: #999;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            color: #333;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .order-items {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .order-items h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+        
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-name {
+            color: #333;
+        }
+        
+        .item-price {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .order-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-pendiente {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-procesando {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-enviado {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-entregado {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-cancelado {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .order-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-cancel {
+            background: #ff6b6b;
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-cancel:hover {
+            background: #ff5252;
+        }
+        
+        .btn-info {
+            background: #667eea;
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-info:hover {
+            background: #764ba2;
+        }
+        
+        .btn-disabled {
+            background: #ccc;
+            color: #999;
+            cursor: not-allowed;
+        }
+        
+        .empty-state {
+            background: white;
+            padding: 60px 30px;
+            border-radius: 10px;
+            text-align: center;
+            color: #999;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        
+        .empty-state p {
+            margin-bottom: 20px;
+        }
+        
+        .btn-create {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            display: inline-block;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        
+        .btn-create:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-header {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        
+        .modal-body textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #f0f0f0;
+            border-radius: 5px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .modal-footer button {
+            flex: 1;
+        }
+        
+        .btn-close {
+            background: #ccc;
+            color: #333;
+        }
+        
+        .btn-confirm {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .order-header {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .order-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <h1>🚚 Amazoncito - Mis Pedidos</h1>
+        <div class="nav-links">
+            <a href="{% url 'client_dashboard' %}">📦 Inicio</a>
+            <a href="{% url 'client_orders' %}">📋 Mis Pedidos</a>
+            <a href="{% url 'client_account' %}">👤 Mi Cuenta</a>
+            <a href="{% url 'logout' %}" class="logout-btn">🚪 Cerrar Sesión</a>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="header">
+            <h2>📋 Mis Pedidos</h2>
+            <p>Aquí puedes ver todos tus pedidos y su estado actual.</p>
+        </div>
+        
+        {% if orders %}
+            <div class="orders-list">
+                {% for order in orders %}
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div class="order-header-item">
+                                <div class="order-header-label">Número de Seguimiento</div>
+                                <div class="order-header-value">{{ order.tracking_number }}</div>
+                            </div>
+                            <div class="order-header-item">
+                                <div class="order-header-label">Fecha</div>
+                                <div class="order-header-value">{{ order.created_at|date:"d/m/y" }}</div>
+                            </div>
+                            <div class="order-header-item">
+                                <div class="order-header-label">Total</div>
+                                <div class="order-header-value">${{ order.total_price }}</div>
+                            </div>
+                            <div class="order-header-item">
+                                <div class="order-header-label">Estado</div>
+                                <div class="order-status status-{{ order.status }}">
+                                    {{ order.get_status_display }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="order-body">
+                            <div class="order-info">
+                                <div class="info-item">
+                                    <div class="info-label">Ciudad de Destino</div>
+                                    <div class="info-value">{{ order.destination_city }}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Fecha de Creación</div>
+                                    <div class="info-value">{{ order.created_at|date:"d/m/Y H:i" }}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Última Actualización</div>
+                                    <div class="info-value">{{ order.updated_at|date:"d/m/Y H:i" }}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="order-items">
+                                <h4>📦 Artículos del Pedido</h4>
+                                {% for item in order.items.all %}
+                                    <div class="order-item">
+                                        <span class="item-name">{{ item.product.name }} x{{ item.quantity }}</span>
+                                        <span class="item-price">${{ item.price }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            
+                            {% if order.cancellation_message %}
+                                <div style="background: #f8d7da; border-left: 3px solid #721c24; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                                    <strong style="color: #721c24;">⚠️ Motivo de Cancelación:</strong>
+                                    <p style="color: #721c24; margin-top: 5px;">{{ order.cancellation_message }}</p>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="order-actions">
+                                {% if order.status not in 'entregado,cancelado' %}
+                                    <button class="btn-info" onclick="viewOrderDetails({{ order.id }})">ℹ️ Ver Detalles</button>
+                                    <button class="btn-cancel" onclick="openCancelModal({{ order.id }})">❌ Cancelar Pedido</button>
+                                {% else %}
+                                    <button class="btn-info" onclick="viewOrderDetails({{ order.id }})">ℹ️ Ver Detalles</button>
+                                    <button class="btn-info btn-disabled" disabled>❌ Cancelar Pedido</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <h3>📭 No tienes pedidos</h3>
+                <p>Comienza a realizar compras y crea tus primeros pedidos.</p>
+                <a href="{% url 'create_order' %}" class="btn-create">➕ Crear Nuevo Pedido</a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Modal de cancelación -->
+    <div id="cancelModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">❌ Cancelar Pedido</div>
+            <form id="cancelForm" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="cancel">
+                <input type="hidden" name="order_id" id="cancelOrderId">
+                
+                <div class="modal-body">
+                    <label>Motivo de Cancelación (opcional):</label>
+                    <textarea name="cancellation_message" placeholder="Cuéntanos por qué deseas cancelar este pedido..."></textarea>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn-close" onclick="closeCancelModal()">← Cancelar</button>
+                    <button type="submit" class="btn-confirm">✓ Confirmar Cancelación</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function openCancelModal(orderId) {
+            document.getElementById('cancelOrderId').value = orderId;
+            document.getElementById('cancelModal').style.display = 'block';
+        }
+        
+        function closeCancelModal() {
+            document.getElementById('cancelModal').style.display = 'none';
+        }
+        
+        function viewOrderDetails(orderId) {
+            alert('Detalles del pedido #' + orderId + ' (Funcionalidad expandible)');
+        }
+        
+        window.onclick = function(event) {
+            let modal = document.getElementById('cancelModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

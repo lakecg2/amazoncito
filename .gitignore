@@ -1,0 +1,78 @@
+# .gitignore para proyecto Django
+
+# Byte-compiled / pyc
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# C extensions
+*.so
+
+# Virtual environments
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# Packaging / build
+.Python
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+eggs/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Test / coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+.hypothesis/
+
+# Entornos/secretos
+.env
+.env.*
+secrets.json
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# IDEs y editores
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node / frontend
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+webpack-stats.json
+
+# Sphinx
+docs/_build/
+
+# Linting / type check
+.mypy_cache/
+.pylint.d/
+
+# Otros temporales
+*.log
+*.pot
+*.mo

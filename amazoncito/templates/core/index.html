@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazoncito - Sistema de Gestión de Paqueterías</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 600px;
+            overflow: hidden;
+            text-align: center;
+            padding: 60px 40px;
+        }
+        
+        .logo {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .description {
+            color: #999;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .feature {
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .feature-text {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        a {
+            padding: 12px 30px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .btn-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-init {
+            background: #f0f0f0;
+            color: #333;
+            font-size: 12px;
+            padding: 8px 15px;
+        }
+        
+        .btn-init:hover {
+            background: #e0e0e0;
+        }
+        
+        .footer-text {
+            color: #999;
+            font-size: 12px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .footer-text strong {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🚚</div>
+        <h1>Amazoncito</h1>
+        <p class="subtitle">Sistema de Gestión de Paqueterías</p>
+        
+        <p class="description">
+            Plataforma completa para la gestión eficiente de pedidos, entregas y rutas de paqueterías.
+            Implementada con estructuras de datos avanzadas para optimizar operaciones.
+        </p>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">📦</div>
+                <div class="feature-text">Gestión de Pedidos</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">👥</div>
+                <div class="feature-text">Control de Clientes</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🗺️</div>
+                <div class="feature-text">Rutas de Entrega</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📊</div>
+                <div class="feature-text">Análisis Admin</div>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <a href="{% url 'login' %}" class="btn-login">🔐 Acceder al Sistema</a>
+        </div>
+        
+        <div class="buttons" style="margin-top: 15px; gap: 5px;">
+            <a href="/api/init-admin/" class="btn-init">⚙️ Inicializar Admin</a>
+            <a href="/api/init-data/" class="btn-init">📥 Cargar Datos</a>
+        </div>
+        
+        <div class="footer-text">
+            Credenciales por defecto - Usuario: <strong>admin</strong> | Contraseña: <strong>Amazoncito123</strong>
+        </div>
+    </div>
+</body>
+</html>
