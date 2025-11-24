@@ -531,7 +531,10 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    await loadCartFromServer();
+                    // Eliminar del carrito localmente
+                    delete cart[productId];
+                    renderProducts();  // Re-renderizar
+                    updateCart();      // Actualizar resumen
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -553,7 +556,10 @@
                     const data = await response.json();
                     
                     if (data.success) {
-                        await loadCartFromServer();
+                        // Limpiar el carrito localmente
+                        cart = {};
+                        renderProducts();  // Re-renderizar
+                        updateCart();      // Actualizar resumen
                     }
                 } catch (error) {
                     console.error('Error:', error);
