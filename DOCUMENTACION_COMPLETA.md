@@ -56,7 +56,7 @@ sqlparse==0.5.0
 ### Paso 1: Navegar a la carpeta del proyecto
 
 ```powershell
-cd "C:\Users\Carlos Sote\OneDrive\Documentos\programacion\proyectos\amazoncito"
+cd "C:\amazoncito"
 ```
 
 ### Paso 2: Activar el entorno virtual
