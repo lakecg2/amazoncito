@@ -11,7 +11,7 @@ import json
 
 from .models import (
     UserProfile, Product, Category, Order, OrderItem, 
-    DeliveryHistory, NotificationMessage, City, Route, Graph
+    DeliveryHistory, NotificationMessage, City, Route, Graph, CartItem
 )
 
 # Vistas de autenticación
@@ -206,10 +206,35 @@ def create_order(request):
         order.total_price = total_price
         order.save()
         
+        # Calcular estimación de entrega usando Dijkstra
+        try:
+            from .route_calculator import get_delivery_estimate
+            import json
+            
+            estimate = get_delivery_estimate(destination_city)
+            if estimate:
+                from .models import DeliveryEstimate
+                DeliveryEstimate.objects.create(
+                    order=order,
+                    estimated_arrival=estimate['arrival_datetime'],
+                    route_path=json.dumps(estimate['route']),
+                    total_distance=estimate['distance']
+                )
+                estimated_days = estimate['estimated_days']
+            else:
+                estimated_days = 5  # Default si no hay ruta
+        except Exception as e:
+            print(f"Error calculating delivery estimate: {e}")
+            estimated_days = 5  # Default en caso de error
+        
+        # Limpiar carrito después de crear orden
+        CartItem.objects.filter(user=request.user).delete()
+        
         return JsonResponse({
             'success': True,
             'tracking_number': tracking_number,
-            'order_id': order.id
+            'order_id': order.id,
+            'estimated_days': estimated_days
         })
     
     cities = City.objects.all()
@@ -219,10 +244,22 @@ def create_order(request):
     for category in categories:
         products_by_category[category.name] = list(category.products.all())
     
+    # Obtener carrito del usuario desde la BD
+    cart_items = CartItem.objects.filter(user=request.user).select_related('product')
+    cart_data = {}
+    for item in cart_items:
+        cart_data[str(item.product.id)] = {
+            'id': item.product.id,
+            'name': item.product.name,
+            'price': float(item.product.price),
+            'quantity': item.quantity
+        }
+    
     context = {
         'cities': cities,
         'categories': categories,
         'products_by_category': products_by_category,
+        'cart': cart_data,
     }
     return render(request, 'client/create_order.html', context)
 
@@ -244,7 +281,21 @@ def admin_dashboard(request):
     delivered_orders = Order.objects.filter(status='entregado').count()
     total_revenue = Order.objects.filter(status='entregado').aggregate(Sum('total_price'))['total_price__sum'] or 0
     
+    # Obtener órdenes recientes con información de entrega
     recent_orders = Order.objects.all().order_by('-created_at')[:10]
+    
+    # Enriquecer órdenes con información de entrega
+    for order in recent_orders:
+        try:
+            estimate = order.delivery_estimate
+            import json
+            order.route_info = {
+                'path': json.loads(estimate.route_path),
+                'distance': estimate.total_distance,
+                'arrival': estimate.estimated_arrival
+            }
+        except:
+            order.route_info = None
     
     context = {
         'total_orders': total_orders,
@@ -398,3 +449,142 @@ def initialize_data(request):
         )
     
     return JsonResponse({'message': 'Data initialized'})
+
+# Funciones de carrito usando base de datos
+
+@login_required(login_url='login')
+def add_to_cart(request):
+    """Agregar producto al carrito"""
+    if request.method == 'POST':
+        try:
+            product_id = request.POST.get('product_id')
+            quantity_str = request.POST.get('quantity', '1')
+            
+            if not product_id:
+                return JsonResponse({'success': False, 'error': 'ID de producto no proporcionado'}, status=400)
+            
+            try:
+                quantity = int(quantity_str)
+                if quantity < 1:
+                    quantity = 1
+            except (ValueError, TypeError):
+                quantity = 1
+            
+            product = Product.objects.get(id=int(product_id))
+            
+            # Obtener o crear item en carrito
+            cart_item, created = CartItem.objects.get_or_create(
+                user=request.user,
+                product=product,
+                defaults={'quantity': quantity}
+            )
+            
+            if not created:
+                cart_item.quantity += quantity
+                cart_item.save()
+            
+            # Contar items en carrito
+            cart_count = CartItem.objects.filter(user=request.user).count()
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'{product.name} agregado al carrito',
+                'cart_count': cart_count
+            })
+        except Product.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Producto no encontrado'}, status=404)
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    
+    return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=400)
+
+@login_required(login_url='login')
+def get_cart(request):
+    """Obtener carrito del usuario"""
+    cart_items = CartItem.objects.filter(user=request.user).select_related('product')
+    
+    cart_data = {}
+    for item in cart_items:
+        cart_data[str(item.product.id)] = {
+            'id': item.product.id,
+            'name': item.product.name,
+            'price': float(item.product.price),
+            'quantity': item.quantity
+        }
+    
+    return JsonResponse({
+        'success': True,
+        'cart': cart_data,
+        'count': len(cart_data)
+    })
+
+@login_required(login_url='login')
+def remove_from_cart(request):
+    """Quitar producto del carrito"""
+    if request.method == 'POST':
+        try:
+            product_id = request.POST.get('product_id')
+            
+            if not product_id:
+                return JsonResponse({'success': False, 'error': 'ID de producto no proporcionado'}, status=400)
+            
+            CartItem.objects.filter(user=request.user, product_id=int(product_id)).delete()
+            
+            cart_count = CartItem.objects.filter(user=request.user).count()
+            
+            return JsonResponse({
+                'success': True,
+                'cart_count': cart_count
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    
+    return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=400)
+
+@login_required(login_url='login')
+def clear_cart(request):
+    """Limpiar carrito completo"""
+    if request.method == 'POST':
+        try:
+            CartItem.objects.filter(user=request.user).delete()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    
+    return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=400)
+
+@login_required(login_url='login')
+def update_cart_quantity(request):
+    """Actualizar cantidad de producto en carrito"""
+    if request.method == 'POST':
+        try:
+            product_id = request.POST.get('product_id')
+            quantity_str = request.POST.get('quantity', '1')
+            
+            if not product_id:
+                return JsonResponse({'success': False, 'error': 'ID de producto no proporcionado'}, status=400)
+            
+            try:
+                quantity = int(quantity_str)
+                if quantity < 1:
+                    quantity = 1
+            except (ValueError, TypeError):
+                quantity = 1
+            
+            cart_item = CartItem.objects.get(user=request.user, product_id=int(product_id))
+            cart_item.quantity = quantity
+            cart_item.save()
+            
+            product = cart_item.product
+            new_total = float(product.price) * quantity
+            
+            return JsonResponse({
+                'success': True,
+                'new_total': new_total
+            })
+        except CartItem.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Producto no en carrito'}, status=404)
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    
+    return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=400)

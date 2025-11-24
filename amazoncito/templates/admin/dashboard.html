@@ -303,8 +303,9 @@
                             <th>Seguimiento</th>
                             <th>Cliente</th>
                             <th>Ciudad</th>
+                            <th>Ruta Estimada</th>
+                            <th>ETA</th>
                             <th>Total</th>
-                            <th>Fecha</th>
                             <th>Estado</th>
                         </tr>
                     </thead>
@@ -314,8 +315,27 @@
                                 <td><strong>{{ order.tracking_number }}</strong></td>
                                 <td>{{ order.user.username }}</td>
                                 <td>{{ order.destination_city }}</td>
+                                <td>
+                                    {% if order.route_info %}
+                                        <small style="color: #666;">
+                                            {{ order.route_info.path|join:" → " }}
+                                            <br/>
+                                            <strong>Distancia:</strong> {{ order.route_info.distance }} km
+                                        </small>
+                                    {% else %}
+                                        <span style="color: #999;">No calculada</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if order.route_info %}
+                                        <strong style="color: #2e7d32;">
+                                            {{ order.route_info.arrival|date:"d/m H:i" }}
+                                        </strong>
+                                    {% else %}
+                                        <span style="color: #999;">-</span>
+                                    {% endif %}
+                                </td>
                                 <td>${{ order.total_price }}</td>
-                                <td>{{ order.created_at|date:"d/m/y H:i" }}</td>
                                 <td><span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></td>
                             </tr>
                         {% endfor %}

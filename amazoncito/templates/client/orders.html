@@ -430,9 +430,14 @@
                             </div>
                             
                             {% if order.cancellation_message %}
-                                <div style="background: #f8d7da; border-left: 3px solid #721c24; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
-                                    <strong style="color: #721c24;">⚠️ Motivo de Cancelación:</strong>
-                                    <p style="color: #721c24; margin-top: 5px;">{{ order.cancellation_message }}</p>
+                                <div id="cancellation-alert-{{ order.id }}" style="background: #f8d7da; border-left: 3px solid #721c24; padding: 15px; border-radius: 5px; margin-bottom: 15px; position: relative;">
+                                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                                        <div style="flex: 1;">
+                                            <strong style="color: #721c24;">⚠️ Motivo de Cancelación:</strong>
+                                            <p style="color: #721c24; margin-top: 5px;">{{ order.cancellation_message }}</p>
+                                        </div>
+                                        <button type="button" onclick="closeCancellationAlert({{ order.id }})" style="background: #721c24; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: 600; margin-left: 15px; white-space: nowrap;">OK</button>
+                                    </div>
                                 </div>
                             {% endif %}
                             
@@ -488,6 +493,13 @@
         
         function closeCancelModal() {
             document.getElementById('cancelModal').style.display = 'none';
+        }
+        
+        function closeCancellationAlert(orderId) {
+            const alert = document.getElementById('cancellation-alert-' + orderId);
+            if (alert) {
+                alert.style.display = 'none';
+            }
         }
         
         function viewOrderDetails(orderId) {

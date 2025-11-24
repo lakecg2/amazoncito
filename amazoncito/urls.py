@@ -36,6 +36,13 @@ urlpatterns = [
     path('admin/services/', views.admin_services, name='admin_services'),
     path('admin/account/', views.admin_account, name='admin_account'),
     
+    # Cart APIs
+    path('api/cart/add/', views.add_to_cart, name='add_to_cart'),
+    path('api/cart/get/', views.get_cart, name='get_cart'),
+    path('api/cart/remove/', views.remove_from_cart, name='remove_from_cart'),
+    path('api/cart/clear/', views.clear_cart, name='clear_cart'),
+    path('api/cart/update/', views.update_cart_quantity, name='update_cart_quantity'),
+    
     # Utility URLs
     path('api/init-admin/', views.initialize_admin, name='init_admin'),
     path('api/init-data/', views.initialize_data, name='init_data'),

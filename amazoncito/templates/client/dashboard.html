@@ -201,6 +201,52 @@
             background: #764ba2;
         }
         
+        .cart-notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+        
+        .cart-badge {
+            display: inline-block;
+            background: #ff4757;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-left: 8px;
+            font-weight: 600;
+        }
+        
         @media (max-width: 768px) {
             .nav-links {
                 gap: 10px;
@@ -218,12 +264,14 @@
     </style>
 </head>
 <body>
+    {% csrf_token %}
     <nav>
         <h1>🚚 Amazoncito - Cliente</h1>
         <div class="nav-links">
             <a href="{% url 'client_dashboard' %}">📦 Inicio</a>
             <a href="{% url 'client_orders' %}">📋 Mis Pedidos</a>
             <a href="{% url 'client_account' %}">👤 Mi Cuenta</a>
+            <a href="{% url 'create_order' %}" id="cartLink">🛒 Carrito <span class="cart-badge" id="cartCount">0</span></a>
             <a href="{% url 'logout' %}" class="logout-btn">🚪 Cerrar Sesión</a>
         </div>
     </nav>
@@ -271,10 +319,69 @@
     </div>
     
     <script>
-        function selectProduct(productId, productName, price) {
-            alert(`Producto "${productName}" seleccionado. Ir a crear pedido para agregarlo.`);
-            window.location.href = "{% url 'create_order' %}";
+        // Funciones de carrito usando API
+        async function updateCartCount() {
+            try {
+                const response = await fetch('{% url 'get_cart' %}');
+                const data = await response.json();
+                document.getElementById('cartCount').textContent = data.count;
+            } catch (error) {
+                console.error('Error al obtener carrito:', error);
+            }
         }
+        
+        async function selectProduct(productId, productName, price) {
+            try {
+                // Obtener CSRF token
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+                if (!csrfToken) {
+                    alert('Error de seguridad: Token CSRF no encontrado');
+                    return;
+                }
+                
+                const response = await fetch('{% url 'add_to_cart' %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: `product_id=${productId}&quantity=1`
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateCartCount();
+                    showNotification(`✅ "${productName}" agregado al carrito`);
+                } else {
+                    alert('Error: ' + (data.error || 'No se pudo agregar el producto'));
+                }
+            } catch (error) {
+                console.error('Error detallado:', error);
+                alert('Error al agregar al carrito: ' + error.message);
+            }
+        }
+        
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'cart-notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(() => notification.remove(), 300);
+            }, 2000);
+        }
+        
+        // Inicializar carrito al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+        });
     </script>
 </body>
 </html>

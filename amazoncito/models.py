@@ -260,3 +260,27 @@ class NotificationMessage(models.Model):
     
     def __str__(self):
         return f"Notification for {self.user.username}"
+
+class CartItem(models.Model):
+    """Items en el carrito del cliente"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cart_items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+    added_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = ('user', 'product')
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.product.name} x{self.quantity}"
+
+class DeliveryEstimate(models.Model):
+    """Estimación de entrega para órdenes"""
+    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='delivery_estimate')
+    estimated_arrival = models.DateTimeField()
+    route_path = models.TextField()  # JSON con la ruta: [ciudad1, ciudad2, ...]
+    total_distance = models.IntegerField(default=0)  # Distancia total en km
+    
+    def __str__(self):
+        return f"Delivery estimate for {self.order.tracking_number}"
