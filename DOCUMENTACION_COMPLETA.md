@@ -53,7 +53,7 @@ sqlparse==0.5.0
 
 ## Cómo Iniciar el Servidor
 
-### Paso 1: Navegar a la carpeta del proyecto
+### Paso 1: Navegar a la carpeta del proyecto (colocarte en la carpeta donde tengas el proyecto)
 
 ```powershell
 cd "C:\amazoncito"
